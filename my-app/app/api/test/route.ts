@@ -1,14 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-import { readFileSync } from "fs";
-import path from "path";
 
-export async function GET() {
+export async function POST(request: Request) {
   const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  const imagePath = path.join(process.cwd(), "public", "test-receipt.jpg");
-  const imageBuffer = readFileSync(imagePath);
-  const base64Image = imageBuffer.toString("base64");
+  const formData = await request.formData();
+  const file = formData.get("receipt") as File;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+  }
+
+  const bytes = await file.arrayBuffer();
+  const base64Image = Buffer.from(bytes).toString("base64");
 
   const response = await client.models.generateContent({
     model: "gemini-flash-latest",
@@ -27,7 +31,7 @@ export async function GET() {
           },
           {
             inlineData: {
-              mimeType: "image/jpeg",
+              mimeType: file.type,
               data: base64Image,
             },
           },
@@ -36,7 +40,6 @@ export async function GET() {
     ],
   });
 
-  // Clean up in case Gemini wraps it in markdown code fences
   const rawText = response.text ?? "";
   const cleaned = rawText.replace(/```json|```/g, "").trim();
 
