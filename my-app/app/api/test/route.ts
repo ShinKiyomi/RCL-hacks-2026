@@ -6,7 +6,6 @@ import path from "path";
 export async function GET() {
   const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-  // Read the test image and convert it to base64
   const imagePath = path.join(process.cwd(), "public", "test-receipt.jpg");
   const imageBuffer = readFileSync(imagePath);
   const base64Image = imageBuffer.toString("base64");
@@ -17,7 +16,15 @@ export async function GET() {
       {
         role: "user",
         parts: [
-          { text: "List every item and price you see on this receipt, as a simple list." },
+          {
+            text: `Read this receipt and return ONLY valid JSON, no other text, no markdown formatting, in exactly this shape:
+{
+  "items": [
+    { "name": "string", "quantity": number, "price": number }
+  ],
+  "total": number
+}`,
+          },
           {
             inlineData: {
               mimeType: "image/jpeg",
@@ -29,5 +36,14 @@ export async function GET() {
     ],
   });
 
-  return NextResponse.json({ reply: response.text });
+  // Clean up in case Gemini wraps it in markdown code fences
+  const rawText = response.text ?? "";
+  const cleaned = rawText.replace(/```json|```/g, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned);
+    return NextResponse.json(parsed);
+  } catch (err) {
+    return NextResponse.json({ error: "Could not parse JSON", raw: rawText });
+  }
 }
