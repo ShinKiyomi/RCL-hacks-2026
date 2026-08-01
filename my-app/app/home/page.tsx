@@ -65,13 +65,13 @@ export default function HomePage() {
         </div>
 
         {/* Bottom nav */}
-        <div style={styles.bottomNav}>
-          <div style={styles.navItem}>🏠<span>Home</span></div>
-          <div style={styles.navItem}>🛒<span>Inventory</span></div>
-          <div style={styles.navItem}>🍳<span>Recipes</span></div>
-          <div style={styles.navItem}>📋<span>Orders</span></div>
-          <div style={styles.navItem}>👤<span>Profile</span></div>
-        </div>
+<div style={styles.bottomNav}>
+  <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
+  <a href="/inventory" style={styles.navItem}>🛒<span>Inventory</span></a>
+  <a href="/recipes" style={styles.navItem}>🍳<span>Recipes</span></a>
+  <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
+  <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
+</div>
       </div>
     </div>
   );
@@ -208,11 +208,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "0 0 0 0",
   },
   navItem: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "4px",
-    color: "#e6bb8f",
-    fontSize: "10px",
-  },
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "4px",
+  color: "#e6bb8f",
+  fontSize: "10px",
+  textDecoration: "none",
+},
 };
