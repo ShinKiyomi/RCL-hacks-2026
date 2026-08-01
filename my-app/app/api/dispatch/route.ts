@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const body = await request.json();
 
-  // Basic validation
   if (!body.item || !body.price) {
     return NextResponse.json(
       { error: "Missing required fields: item, price" },
@@ -20,14 +19,19 @@ export async function POST(request: Request) {
     dispatchedAt: new Date().toISOString(),
   };
 
-  // TODO: later, this is where we'd call Faye's Webhook URL
-  // await fetch(process.env.FAYE_WEBHOOK_URL, {
-  //   method: "POST",
-  //   body: JSON.stringify(dispatchPayload),
-  // });
+  // Send to Faye's n8n webhook
+  try {
+    await fetch("https://fayesia.app.n8n.cloud/webhook/8e3c65bd-2436-4909-b5d9-5ceb6dfa3ab7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dispatchPayload),
+    });
+  } catch (err) {
+    console.error("Failed to reach n8n webhook:", err);
+  }
 
   return NextResponse.json({
     status: "success",
     dispatched: dispatchPayload,
   });
-} 
+}

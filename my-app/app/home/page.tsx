@@ -43,27 +43,26 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <h3 style={styles.sectionTitle}>Quick Actions</h3>
-        <div style={styles.quickActions}>
-          <a href="/cogs-view" style={styles.quickAction}>
-            <div style={styles.quickIcon}>💰</div>
-            <span style={styles.quickLabel}>Batch cost</span>
-          </a>
-          <a href="/forecast" style={styles.quickAction}>
-            <div style={styles.quickIcon}>📈</div>
-            <span style={styles.quickLabel}>Forecast</span>
-          </a>
-          <a href="/dispatch-view" style={styles.quickAction}>
-            <div style={styles.quickIcon}>⚙️</div>
-            <span style={styles.quickLabel}>Demand activator</span>
-          </a>
-          <a href="/orders" style={styles.quickAction}>
-            <div style={styles.quickIcon}>📋</div>
-            <span style={styles.quickLabel}>Orders</span>
-          </a>
-        </div>
-
+      {/* Quick Actions */}
+<h3 style={styles.sectionTitle}>Quick Actions</h3>
+<div style={styles.quickActions}>
+  <a href="/cogs-view" style={styles.quickAction}>
+    <div style={styles.quickIcon}>💰</div>
+    <span style={styles.quickLabel}>Batch cost</span>
+  </a>
+  <a href="/forecast" style={styles.quickAction}>
+    <div style={styles.quickIcon}>📈</div>
+    <span style={styles.quickLabel}>Forecast</span>
+  </a>
+  <a href="/dispatch-view" style={styles.quickAction}>
+    <div style={styles.quickIcon}>⚙️</div>
+    <span style={styles.quickLabel}>Demand activator</span>
+  </a>
+  <a href="/orders" style={styles.quickAction}>
+    <div style={styles.quickIcon}>📋</div>
+    <span style={styles.quickLabel}>Orders</span>
+  </a>
+</div>
         {/* Bottom nav */}
 <div style={styles.bottomNav}>
   <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
