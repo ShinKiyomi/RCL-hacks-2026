@@ -7,8 +7,11 @@ interface Order {
   customer: string;
   item: string;
   quantity: number;
+  unitPrice: number;
+  totalPrice: number;
   status: "Pending" | "Confirmed" | "Completed";
   pickupTime: string;
+  paymentStatus: "Unpaid" | "Paid";
 }
 
 const statusColors: Record<string, { bg: string; text: string }> = {
@@ -40,6 +43,9 @@ export default function OrdersPage() {
       quantity: parseInt(quantity) || 1,
       status,
       pickupTime: pickupTime || "TBD",
+      unitPrice: 0,
+      totalPrice: 0,
+      paymentStatus: "Unpaid"
     };
     const updated = [...orders, newOrder];
     setOrders(updated);
