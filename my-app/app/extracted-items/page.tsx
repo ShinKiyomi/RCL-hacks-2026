@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus, Home, ShoppingCart, CookingPot, ClipboardList, User } from "lucide-react";
 
 interface Item {
   name: string;
@@ -39,19 +40,22 @@ export default function ExtractedItemsPage() {
     setEditingAll(true);
   };
 
- const saveToInventory = () => {
-  const existing = localStorage.getItem("inventoryItems");
-  const existingItems = existing ? JSON.parse(existing) : [];
-  const merged = [...existingItems, ...items];
-  localStorage.setItem("inventoryItems", JSON.stringify(merged));
-  router.push("/home");
-};
+  const saveToInventory = () => {
+    const existing = localStorage.getItem("inventoryItems");
+    const existingItems = existing ? JSON.parse(existing) : [];
+    const merged = [...existingItems, ...items];
+    localStorage.setItem("inventoryItems", JSON.stringify(merged));
+    router.push("/inventory");
+  };
+
   return (
     <div style={styles.outerWrapper}>
       <div style={styles.container}>
         {/* Header */}
         <div style={styles.header}>
-          <button onClick={() => router.push("/upload")} style={styles.backBtn}>←</button>
+          <button onClick={() => router.push("/upload")} style={styles.backBtn}>
+            <ArrowLeft size={22} color="#1f140c" />
+          </button>
           <h1 style={styles.title}>Extracted Items</h1>
           <button style={styles.editAll} onClick={() => setEditingAll(!editingAll)}>
             Edit All
@@ -112,7 +116,8 @@ export default function ExtractedItemsPage() {
         </button>
 
         <button style={styles.addMissingBtn} onClick={addMissingItem}>
-          + Add Missing Item
+          <Plus size={16} style={{ marginRight: "6px" }} />
+          Add Missing Item
         </button>
 
         <button style={styles.saveBtn} onClick={saveToInventory}>
@@ -121,11 +126,11 @@ export default function ExtractedItemsPage() {
 
         {/* Bottom nav */}
         <div style={styles.bottomNav}>
-          <div style={styles.navItem}>🏠<span>Home</span></div>
-          <div style={{ ...styles.navItem, color: "#a0592f" }}>🛒<span>Inventory</span></div>
-          <div style={styles.navItem}>🍳<span>Recipes</span></div>
-          <div style={styles.navItem}>📋<span>Orders</span></div>
-          <div style={styles.navItem}>👤<span>Profile</span></div>
+          <a href="/home" style={styles.navItem}><Home size={22} /><span>Home</span></a>
+          <a href="/inventory" style={{ ...styles.navItem, color: "#e6bb8f" }}><ShoppingCart size={22} /><span>Inventory</span></a>
+          <a href="/cogs-view" style={styles.navItem}><CookingPot size={22} /><span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}><ClipboardList size={22} /><span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}><User size={22} /><span>Profile</span></a>
         </div>
       </div>
     </div>
@@ -133,150 +138,24 @@ export default function ExtractedItemsPage() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  outerWrapper: {
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: "#1a1a1a",
-    display: "flex",
-    justifyContent: "center",
-  },
-  container: {
-    width: "100%",
-    maxWidth: "393px",
-    backgroundColor: "#f3d9bd",
-    minHeight: "100vh",
-    padding: "20px 20px 100px",
-    boxSizing: "border-box",
-    position: "relative",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "16px",
-  },
-  backBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-  title: {
-    fontSize: "18px",
-    fontWeight: 700,
-    color: "#2b1c12",
-    margin: 0,
-  },
-  editAll: {
-    background: "none",
-    border: "none",
-    color: "#a0592f",
-    fontWeight: 700,
-    fontSize: "13px",
-    cursor: "pointer",
-  },
-  banner: {
-    backgroundColor: "#a8c99a",
-    borderRadius: "12px",
-    padding: "16px",
-    textAlign: "center",
-    marginBottom: "20px",
-  },
-  bannerTitle: {
-    fontWeight: 700,
-    color: "#1c2b12",
-    margin: "0 0 4px 0",
-    fontSize: "15px",
-  },
-  bannerSubtitle: {
-    fontSize: "12px",
-    color: "#2b3d1a",
-    margin: 0,
-  },
-  table: {
-    border: "1.5px solid #7a5030",
-    borderRadius: "8px",
-    overflow: "hidden",
-    marginBottom: "16px",
-  },
-  tableHeaderRow: {
-    display: "flex",
-    backgroundColor: "#e6bb8f",
-    padding: "10px 8px",
-    borderBottom: "1.5px solid #7a5030",
-  },
-  th: {
-    fontWeight: 700,
-    fontSize: "12px",
-    color: "#2b1c12",
-  },
-  tableRow: {
-    display: "flex",
-    padding: "10px 8px",
-    borderBottom: "1px solid #cba374",
-    alignItems: "center",
-  },
-  td: {
-    fontSize: "12px",
-    color: "#2b1c12",
-  },
-  input: {
-    fontSize: "12px",
-    padding: "4px",
-    border: "1px solid #a0592f",
-    borderRadius: "4px",
-    width: "90%",
-  },
-  editBtn: {
-    backgroundColor: "#d99a6c",
-    border: "none",
-    borderRadius: "8px",
-    padding: "10px 24px",
-    fontWeight: 700,
-    color: "#2b1c12",
-    float: "right",
-    marginBottom: "20px",
-    cursor: "pointer",
-  },
-  addMissingBtn: {
-    width: "100%",
-    backgroundColor: "transparent",
-    border: "1.5px solid #2b1c12",
-    borderRadius: "10px",
-    padding: "14px",
-    fontWeight: 700,
-    color: "#a0592f",
-    marginTop: "50px",
-    marginBottom: "16px",
-    cursor: "pointer",
-  },
-  saveBtn: {
-    width: "100%",
-    backgroundColor: "#5a3a1a",
-    border: "none",
-    borderRadius: "10px",
-    padding: "16px",
-    fontWeight: 700,
-    color: "#fff",
-    fontSize: "15px",
-    cursor: "pointer",
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#2b1c12",
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "12px 0",
-  },
-  navItem: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "4px",
-    color: "#e6bb8f",
-    fontSize: "10px",
-  },
+  outerWrapper: { minHeight: "100vh", width: "100%", backgroundColor: "#1a1a1a", display: "flex", justifyContent: "center" },
+  container: { width: "100%", maxWidth: "393px", backgroundColor: "#f3d9bd", minHeight: "100vh", padding: "20px 20px 100px", boxSizing: "border-box", position: "relative" },
+  header: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" },
+  backBtn: { background: "none", border: "none", cursor: "pointer" },
+  title: { fontSize: "19px", fontWeight: 800, color: "#1f140c", margin: 0 },
+  editAll: { background: "none", border: "none", color: "#a0592f", fontWeight: 700, fontSize: "13px", cursor: "pointer" },
+  banner: { backgroundColor: "#a8c99a", borderRadius: "12px", padding: "16px", textAlign: "center", marginBottom: "20px" },
+  bannerTitle: { fontWeight: 700, color: "#1c2b12", margin: "0 0 4px 0", fontSize: "15px" },
+  bannerSubtitle: { fontSize: "12px", color: "#2b3d1a", margin: 0 },
+  table: { border: "1.5px solid #7a5030", borderRadius: "8px", overflow: "hidden", marginBottom: "16px" },
+  tableHeaderRow: { display: "flex", backgroundColor: "#e6bb8f", padding: "10px 8px", borderBottom: "1.5px solid #7a5030" },
+  th: { fontWeight: 700, fontSize: "12px", color: "#2b1c12" },
+  tableRow: { display: "flex", padding: "10px 8px", borderBottom: "1px solid #cba374", alignItems: "center" },
+  td: { fontSize: "12px", color: "#2b1c12" },
+  input: { fontSize: "12px", padding: "4px", border: "1px solid #a0592f", borderRadius: "4px", width: "90%", color: "#2b1c12" },
+  editBtn: { backgroundColor: "#d99a6c", border: "none", borderRadius: "8px", padding: "10px 24px", fontWeight: 700, color: "#2b1c12", float: "right", marginBottom: "20px", cursor: "pointer" },
+  addMissingBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "transparent", border: "1.5px solid #2b1c12", borderRadius: "10px", padding: "14px", fontWeight: 700, color: "#a0592f", marginTop: "50px", marginBottom: "16px", cursor: "pointer" },
+  saveBtn: { width: "100%", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "15px", cursor: "pointer" },
+  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "14px 0" },
+  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#a88a68", fontSize: "10px", textDecoration: "none", fontWeight: 600 },
 };

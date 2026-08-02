@@ -1,5 +1,5 @@
 "use client";
-
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface InventoryItem {
@@ -44,7 +44,7 @@ export default function InventoryPage() {
         <h1 style={styles.title}>Inventory</h1>
 
         <div style={styles.searchBar}>
-          <span>🔍</span>
+          <Search size={16} color="#5a3a1a" />
           <input
             style={styles.searchInput}
             placeholder="Search ingredients"
@@ -78,7 +78,7 @@ export default function InventoryPage() {
           <div style={styles.list}>
             {filteredItems.map((item, i) => (
               <div key={i} style={styles.row}>
-                <div style={styles.thumbnail}>🖼️</div>
+                <div style={styles.thumbnail}><ShoppingCart size={18} color="#fff" /></div>
                 <div style={styles.info}>
                   <p style={styles.itemName}>{item.name}</p>
                   <p style={styles.quantity}>{item.quantity}</p>
@@ -97,13 +97,13 @@ export default function InventoryPage() {
           </div>
         )}
 
-        <div style={styles.bottomNav}>
-          <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
-          <a href="/inventory" style={{ ...styles.navItem, color: "#a0592f" }}>🛒<span>Inventory</span></a>
-          <a href="/cogs-view" style={styles.navItem}>🍳<span>Recipes</span></a>
-          <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
-          <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
-        </div>
+       <div style={styles.bottomNav}>
+  <a href="/home" style={styles.navItem}><Home size={20} /><span>Home</span></a>
+  <a href="/inventory" style={{ ...styles.navItem, color: "#a0592f" }}><ShoppingCart size={20} /><span>Inventory</span></a>
+  <a href="/cogs-view" style={styles.navItem}><CookingPot size={20} /><span>Recipes</span></a>
+  <a href="/orders" style={styles.navItem}><ClipboardList size={20} /><span>Orders</span></a>
+  <a href="/profile" style={styles.navItem}><User size={20} /><span>Profile</span></a>
+</div>
       </div>
     </div>
   );

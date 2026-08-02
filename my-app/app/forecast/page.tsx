@@ -1,5 +1,5 @@
 "use client";
-
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Lightbulb } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const forecastData = [
@@ -71,7 +71,7 @@ export default function ForecastPage() {
             <h3 style={styles.aiTitle}>AI Recommendation</h3>
             <p style={styles.aiText}>Based on the forecast, you may need to adjust your production</p>
           </div>
-          <div style={styles.aiIcon}>💡</div>
+         <div style={styles.aiIcon}><Lightbulb size={26} color="#2b1c12" /></div>
         </div>
 
         <div style={styles.wasteCard}>
@@ -81,12 +81,12 @@ export default function ForecastPage() {
         </div>
 
         <div style={styles.bottomNav}>
-          <div style={styles.navItem}>🏠<span>Home</span></div>
-          <div style={styles.navItem}>🛒<span>Inventory</span></div>
-          <div style={styles.navItem}>🍳<span>Recipes</span></div>
-          <div style={styles.navItem}>📋<span>Orders</span></div>
-          <div style={{ ...styles.navItem, color: "#a0592f" }}>👤<span>Profile</span></div>
-        </div>
+  <a href="/home" style={styles.navItem}><Home size={20} /><span>Home</span></a>
+  <a href="/inventory" style={styles.navItem}><ShoppingCart size={20} /><span>Inventory</span></a>
+  <a href="/cogs-view" style={{ ...styles.navItem, color: "#a0592f" }}><CookingPot size={20} /><span>Recipes</span></a>
+  <a href="/orders" style={styles.navItem}><ClipboardList size={20} /><span>Orders</span></a>
+  <a href="/profile" style={styles.navItem}><User size={20} /><span>Profile</span></a>
+</div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, Gift, MessageCircle, RefreshCw, Home, ShoppingCart, CookingPot, ClipboardList, User } from "lucide-react";
 
 export default function DispatchViewPage() {
   const router = useRouter();
@@ -59,7 +60,9 @@ export default function DispatchViewPage() {
     <div style={styles.outerWrapper}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <button onClick={() => router.push("/home")} style={styles.backBtn}>←</button>
+          <button onClick={() => router.push("/home")} style={styles.backBtn}>
+            <ArrowLeft size={22} color="#1f140c" />
+          </button>
           <h1 style={styles.title}>Morale Boosting Demand Activator</h1>
         </div>
 
@@ -67,7 +70,7 @@ export default function DispatchViewPage() {
           <h3 style={styles.promoTitle}>Promotion Ideas</h3>
           <p style={styles.promoSubtitle}>(Suggested offers or ideas to boost sales)</p>
           <p style={styles.promoText}>{currentIdea}</p>
-          <span style={styles.giftIcon}>🎁</span>
+          <div style={styles.giftIcon}><Gift size={30} color="#c0392b" fill="#e8544a" /></div>
         </div>
 
         <button style={styles.outlineBtn} onClick={copyMessage}>
@@ -75,11 +78,13 @@ export default function DispatchViewPage() {
         </button>
 
         <button style={styles.whatsappBtn} onClick={shareOnWhatsapp}>
-          📱 Share on Whatsapp
+          <MessageCircle size={18} fill="#fff" color="#25D366" style={{ marginRight: "8px" }} />
+          Share on Whatsapp
         </button>
 
         <button style={styles.outlineBtn} onClick={generateIdea} disabled={generating}>
-          {generating ? "Generating..." : "🔄 Generate another idea"}
+          <RefreshCw size={16} style={{ marginRight: "8px" }} />
+          {generating ? "Generating..." : "Generate another idea"}
         </button>
 
         <button style={styles.dispatchBtn} onClick={dispatchOffer} disabled={sending}>
@@ -89,11 +94,11 @@ export default function DispatchViewPage() {
         {sent && <p style={styles.successMsg}>✅ Deal sent to customers!</p>}
 
         <div style={styles.bottomNav}>
-          <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
-          <a href="/inventory" style={styles.navItem}>🛒<span>Inventory</span></a>
-          <a href="/cogs-view" style={styles.navItem}>🍳<span>Recipes</span></a>
-          <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
-          <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
+          <a href="/home" style={styles.navItem}><Home size={22} /><span>Home</span></a>
+          <a href="/inventory" style={styles.navItem}><ShoppingCart size={22} /><span>Inventory</span></a>
+          <a href="/cogs-view" style={styles.navItem}><CookingPot size={22} /><span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}><ClipboardList size={22} /><span>Orders</span></a>
+          <a href="/profile" style={{ ...styles.navItem, color: "#e6bb8f" }}><User size={22} /><span>Profile</span></a>
         </div>
       </div>
     </div>
@@ -103,18 +108,18 @@ export default function DispatchViewPage() {
 const styles: { [key: string]: React.CSSProperties } = {
   outerWrapper: { minHeight: "100vh", width: "100%", backgroundColor: "#1a1a1a", display: "flex", justifyContent: "center" },
   container: { width: "100%", maxWidth: "393px", backgroundColor: "#f3d9bd", minHeight: "100vh", padding: "20px 20px 100px", boxSizing: "border-box", position: "relative" },
-  header: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" },
-  backBtn: { background: "none", border: "none", fontSize: "20px", cursor: "pointer" },
-  title: { fontSize: "19px", fontWeight: 800, color: "#2b1c12", margin: 0, lineHeight: 1.3 },
-  promoCard: { position: "relative", border: "1.5px solid #7a5030", borderRadius: "12px", padding: "18px", backgroundColor: "#d9a876", marginBottom: "20px" },
-  promoTitle: { fontSize: "16px", fontWeight: 800, color: "#2b1c12", margin: "0 0 6px 0" },
-  promoSubtitle: { fontSize: "11px", color: "#4a3320", margin: "0 0 14px 0" },
-  promoText: { fontSize: "13px", fontWeight: 600, color: "#2b1c12", margin: 0, paddingRight: "40px" },
-  giftIcon: { position: "absolute", top: "18px", right: "16px", fontSize: "28px" },
-  outlineBtn: { width: "100%", backgroundColor: "transparent", border: "1.5px solid #5a3a1a", borderRadius: "10px", padding: "14px", fontWeight: 700, color: "#5a3a1a", fontSize: "14px", cursor: "pointer", marginBottom: "12px" },
-  whatsappBtn: { width: "100%", backgroundColor: "#25D366", border: "none", borderRadius: "10px", padding: "14px", fontWeight: 700, color: "#fff", fontSize: "14px", cursor: "pointer", marginBottom: "12px" },
-  dispatchBtn: { width: "100%", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "15px", cursor: "pointer", marginTop: "12px" },
+  header: { display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "28px", position: "relative" },
+  backBtn: { position: "absolute", left: 0, top: "2px", background: "none", border: "none", cursor: "pointer" },
+  title: { fontSize: "22px", fontWeight: 800, color: "#1f140c", margin: 0, textAlign: "center", lineHeight: 1.3, paddingTop: "2px" },
+  promoCard: { position: "relative", border: "1.5px solid #7a5030", borderRadius: "14px", padding: "20px", backgroundColor: "#d9a876", marginBottom: "18px" },
+  promoTitle: { fontSize: "18px", fontWeight: 800, color: "#1f140c", margin: "0 0 6px 0" },
+  promoSubtitle: { fontSize: "12px", color: "#4a3320", margin: "0 0 16px 0" },
+  promoText: { fontSize: "13px", fontWeight: 600, color: "#2b1c12", margin: 0, paddingRight: "44px", lineHeight: 1.4 },
+  giftIcon: { position: "absolute", top: "20px", right: "18px" },
+  outlineBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "transparent", border: "1.5px solid #5a3a1a", borderRadius: "12px", padding: "16px", fontWeight: 700, color: "#5a3a1a", fontSize: "14px", cursor: "pointer", marginBottom: "14px" },
+  whatsappBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#25D366", border: "none", borderRadius: "12px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "14px", cursor: "pointer", marginBottom: "14px" },
+  dispatchBtn: { width: "100%", backgroundColor: "#5a3a1a", border: "none", borderRadius: "12px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "15px", cursor: "pointer", marginTop: "10px" },
   successMsg: { textAlign: "center", color: "#2b6b2b", fontWeight: 700, marginTop: "14px" },
-  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "12px 0" },
-  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#e6bb8f", fontSize: "10px", textDecoration: "none" },
+  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "14px 0" },
+  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#a88a68", fontSize: "10px", textDecoration: "none", fontWeight: 600 },
 };

@@ -1,5 +1,5 @@
 "use client";
-
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Image as ImageIcon } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -52,7 +52,7 @@ export default function CogsViewPage() {
 
         <div style={styles.card}>
           <div style={styles.topRow}>
-            <div style={styles.thumbnail}>🖼️</div>
+           <div style={styles.thumbnail}><ImageIcon size={22} color="#5a3a1a" /></div>
             <div style={{ flex: 1 }}>
               <input
                 style={styles.nameInput}
@@ -142,12 +142,12 @@ export default function CogsViewPage() {
         </button>
 
         <div style={styles.bottomNav}>
-          <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
-          <a href="/inventory" style={styles.navItem}>🛒<span>Inventory</span></a>
-          <a href="/cogs-view" style={{ ...styles.navItem, color: "#a0592f" }}>🍳<span>Recipes</span></a>
-          <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
-          <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
-        </div>
+  <a href="/home" style={styles.navItem}><Home size={20} /><span>Home</span></a>
+  <a href="/inventory" style={styles.navItem}><ShoppingCart size={20} /><span>Inventory</span></a>
+  <a href="/cogs-view" style={{ ...styles.navItem, color: "#a0592f" }}><CookingPot size={20} /><span>Recipes</span></a>
+  <a href="/orders" style={styles.navItem}><ClipboardList size={20} /><span>Orders</span></a>
+  <a href="/profile" style={styles.navItem}><User size={20} /><span>Profile</span></a>
+</div>
       </div>
     </div>
   );
