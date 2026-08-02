@@ -1,22 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface InventoryItem {
   name: string;
   quantity: string;
   status: "Good" | "Low Stock" | "Expiring Soon";
 }
-
-const sampleData: InventoryItem[] = [
-  { name: "Flour", quantity: "2 kg", status: "Good" },
-  { name: "Butter", quantity: "500 g", status: "Low Stock" },
-  { name: "Sugar", quantity: "1 kg", status: "Expiring Soon" },
-  { name: "Eggs", quantity: "12 pcs", status: "Good" },
-  { name: "Vanilla", quantity: "100 ml", status: "Good" },
-  { name: "Cocoa Powder", quantity: "200 g", status: "Low Stock" },
-  { name: "Milk", quantity: "1 L", status: "Expiring Soon" },
-];
 
 const statusColors: Record<string, { bg: string; text: string }> = {
   Good: { bg: "#a8c99a", text: "#1c2b12" },
@@ -27,8 +17,22 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 export default function InventoryPage() {
   const [filter, setFilter] = useState<"All" | "Low Stock" | "Expiring Soon">("All");
   const [search, setSearch] = useState("");
+  const [items, setItems] = useState<InventoryItem[]>([]);
 
-  const filteredItems = sampleData.filter((item) => {
+  useEffect(() => {
+    const stored = localStorage.getItem("inventoryItems");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const withStatus: InventoryItem[] = parsed.map((item: any) => ({
+        name: item.name,
+        quantity: `${item.quantity ?? 1} unit(s)`,
+        status: "Good",
+      }));
+      setItems(withStatus);
+    }
+  }, []);
+
+  const filteredItems = items.filter((item) => {
     const matchesFilter = filter === "All" || item.status === filter;
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -66,33 +70,39 @@ export default function InventoryPage() {
           ))}
         </div>
 
-        <div style={styles.list}>
-          {filteredItems.map((item, i) => (
-            <div key={i} style={styles.row}>
-              <div style={styles.thumbnail}>🖼️</div>
-              <div style={styles.info}>
-                <p style={styles.itemName}>{item.name}</p>
-                <p style={styles.quantity}>{item.quantity}</p>
+        {filteredItems.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#6a4a2a", fontSize: "13px", marginTop: "20px" }}>
+            No items yet — scan a receipt to add ingredients!
+          </p>
+        ) : (
+          <div style={styles.list}>
+            {filteredItems.map((item, i) => (
+              <div key={i} style={styles.row}>
+                <div style={styles.thumbnail}>🖼️</div>
+                <div style={styles.info}>
+                  <p style={styles.itemName}>{item.name}</p>
+                  <p style={styles.quantity}>{item.quantity}</p>
+                </div>
+                <span
+                  style={{
+                    ...styles.statusTag,
+                    backgroundColor: statusColors[item.status].bg,
+                    color: statusColors[item.status].text,
+                  }}
+                >
+                  {item.status}
+                </span>
               </div>
-              <span
-                style={{
-                  ...styles.statusTag,
-                  backgroundColor: statusColors[item.status].bg,
-                  color: statusColors[item.status].text,
-                }}
-              >
-                {item.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div style={styles.bottomNav}>
-          <div style={styles.navItem}>🏠<span>Home</span></div>
-          <div style={{ ...styles.navItem, color: "#a0592f" }}>🛒<span>Inventory</span></div>
-          <div style={styles.navItem}>🍳<span>Recipes</span></div>
-          <div style={styles.navItem}>📋<span>Orders</span></div>
-          <div style={styles.navItem}>👤<span>Profile</span></div>
+          <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
+          <a href="/inventory" style={{ ...styles.navItem, color: "#a0592f" }}>🛒<span>Inventory</span></a>
+          <a href="/cogs-view" style={styles.navItem}>🍳<span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
         </div>
       </div>
     </div>
@@ -212,5 +222,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: "4px",
     color: "#e6bb8f",
     fontSize: "10px",
+    textDecoration: "none",
   },
 };

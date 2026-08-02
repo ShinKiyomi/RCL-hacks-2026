@@ -39,11 +39,13 @@ export default function ExtractedItemsPage() {
     setEditingAll(true);
   };
 
-  const saveToInventory = () => {
-    sessionStorage.setItem("inventory", JSON.stringify(items));
-    router.push("/home");
-  };
-
+ const saveToInventory = () => {
+  const existing = localStorage.getItem("inventoryItems");
+  const existingItems = existing ? JSON.parse(existing) : [];
+  const merged = [...existingItems, ...items];
+  localStorage.setItem("inventoryItems", JSON.stringify(merged));
+  router.push("/home");
+};
   return (
     <div style={styles.outerWrapper}>
       <div style={styles.container}>

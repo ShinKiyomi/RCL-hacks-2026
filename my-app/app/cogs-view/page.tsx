@@ -12,18 +12,20 @@ export default function CogsViewPage() {
   const router = useRouter();
   const [productName, setProductName] = useState("");
   const [batchSize, setBatchSize] = useState("");
-  const [ingredients, setIngredients] = useState<Ingredient[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("inventory");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return parsed.map((item: any) => ({ name: item.name, price: item.price }));
-      }
-    }
-    return [{ name: "", price: 0 }];
-  });
+  const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", price: 0 }]);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  const useCupcakeTemplate = () => {
+    const stored = localStorage.getItem("inventoryItems");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setIngredients(parsed.map((i: any) => ({ name: i.name, price: i.price })));
+      setProductName("Cupcake Batch");
+    } else {
+      alert("No inventory items found yet — scan a receipt first!");
+    }
+  };
 
   const calculate = async () => {
     setLoading(true);
@@ -65,6 +67,10 @@ export default function CogsViewPage() {
                 onChange={(e) => setBatchSize(e.target.value)}
               />
             </div>
+          </div>
+
+          <div style={styles.templateBtn} onClick={useCupcakeTemplate}>
+            🧁 Use Cupcake Template (from Inventory)
           </div>
 
           <h3 style={styles.sectionLabel}>Ingredient Cost Breakdown</h3>
@@ -136,11 +142,11 @@ export default function CogsViewPage() {
         </button>
 
         <div style={styles.bottomNav}>
-          <div style={styles.navItem}>🏠<span>Home</span></div>
-          <div style={styles.navItem}>🛒<span>Inventory</span></div>
-          <div style={styles.navItem}>🍳<span>Recipes</span></div>
-          <div style={styles.navItem}>📋<span>Orders</span></div>
-          <div style={styles.navItem}>👤<span>Profile</span></div>
+          <a href="/home" style={styles.navItem}>🏠<span>Home</span></a>
+          <a href="/inventory" style={styles.navItem}>🛒<span>Inventory</span></a>
+          <a href="/cogs-view" style={{ ...styles.navItem, color: "#a0592f" }}>🍳<span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}>📋<span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}>👤<span>Profile</span></a>
         </div>
       </div>
     </div>
@@ -156,8 +162,19 @@ const styles: { [key: string]: React.CSSProperties } = {
   card: { border: "1.5px solid #7a5030", borderRadius: "10px", padding: "14px", marginBottom: "20px" },
   topRow: { display: "flex", gap: "10px", marginBottom: "16px" },
   thumbnail: { width: "60px", height: "60px", backgroundColor: "#e6bb8f", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px" },
- nameInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", marginBottom: "6px", fontSize: "13px", boxSizing: "border-box", color: "#2b1c12" },
-batchInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", fontSize: "12px", boxSizing: "border-box", color: "#2b1c12" },
+  nameInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", marginBottom: "6px", fontSize: "13px", boxSizing: "border-box", color: "#2b1c12" },
+  batchInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", fontSize: "12px", boxSizing: "border-box", color: "#2b1c12" },
+  templateBtn: {
+    backgroundColor: "#d99a6c",
+    borderRadius: "8px",
+    padding: "10px",
+    marginBottom: "12px",
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: "13px",
+    color: "#2b1c12",
+    textAlign: "center",
+  },
   sectionLabel: { fontSize: "13px", fontWeight: 800, color: "#2b1c12", margin: "0 0 8px 0" },
   ingredientRow: { display: "flex", gap: "6px", marginBottom: "6px" },
   ingInput: { flex: 1, border: "1px solid #cba374", borderRadius: "6px", padding: "6px 8px", fontSize: "12px", color: "#2b1c12" },
@@ -171,5 +188,5 @@ batchInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", p
   priceNote: { fontSize: "10px", color: "#3d2a1a", margin: 0 },
   saveBtn: { width: "100%", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "15px", cursor: "pointer" },
   bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "12px 0" },
-  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#e6bb8f", fontSize: "10px" },
+  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#e6bb8f", fontSize: "10px", textDecoration: "none" },
 };
