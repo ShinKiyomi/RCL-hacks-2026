@@ -1,0 +1,103 @@
+.page {
+  min-height: 100vh;
+  background: #f2c9a0;
+  display: flex;
+  justify-content: center;
+}
+
+.content {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #2b2b2b;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #2b2b2b;
+  margin: 0;
+}
+
+.subtitle {
+  color: #2b2b2b;
+  font-size: 15px;
+  margin: 8px 0 28px 40px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background: #fdf3e7;
+  border: 1px solid #a8622e;
+  border-radius: 12px;
+  padding: 0 16px;
+}
+
+.icon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 14px 0;
+  font-size: 15px;
+  color: #4a3524;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #a8622e;
+}
+
+.eyeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.error {
+  color: #7a1f1f;
+  font-size: 13px;
+  margin: 0;
+}
+
+.createButton {
+  background: #7a3e1d;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.createButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
