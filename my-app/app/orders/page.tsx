@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Home, ShoppingCart, CookingPot, ClipboardList, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Plus } from "lucide-react";
 
 interface Order {
   customer: string;
@@ -11,12 +11,6 @@ interface Order {
   pickupTime: string;
 }
 
-const sampleOrders: Order[] = [
-  { customer: "Sarah M.", item: "Chocolate Cupcake 6-pack", quantity: 1, status: "Pending", pickupTime: "Fri, 5 PM" },
-  { customer: "James K.", item: "Vanilla Cupcake 12-pack", quantity: 1, status: "Confirmed", pickupTime: "Sat, 11 AM" },
-  { customer: "Aisha R.", item: "Red Velvet Cupcake 6-pack", quantity: 2, status: "Completed", pickupTime: "Thu, 3 PM" },
-];
-
 const statusColors: Record<string, { bg: string; text: string }> = {
   Pending: { bg: "#e8a087", text: "#5a2010" },
   Confirmed: { bg: "#9fc3e0", text: "#0f2c40" },
@@ -25,8 +19,40 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 
 export default function OrdersPage() {
   const [filter, setFilter] = useState<"All" | "Pending" | "Confirmed" | "Completed">("All");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [customer, setCustomer] = useState("");
+  const [item, setItem] = useState("");
+  const [quantity, setQuantity] = useState("1");
+  const [pickupTime, setPickupTime] = useState("");
+  const [status, setStatus] = useState<Order["status"]>("Pending");
 
-  const filteredOrders = sampleOrders.filter(
+  useEffect(() => {
+    const stored = localStorage.getItem("orders");
+    if (stored) setOrders(JSON.parse(stored));
+  }, []);
+
+  const addOrder = () => {
+    if (!customer || !item) return;
+    const newOrder: Order = {
+      customer,
+      item,
+      quantity: parseInt(quantity) || 1,
+      status,
+      pickupTime: pickupTime || "TBD",
+    };
+    const updated = [...orders, newOrder];
+    setOrders(updated);
+    localStorage.setItem("orders", JSON.stringify(updated));
+    setCustomer("");
+    setItem("");
+    setQuantity("1");
+    setPickupTime("");
+    setStatus("Pending");
+    setShowForm(false);
+  };
+
+  const filteredOrders = orders.filter(
     (o) => filter === "All" || o.status === filter
   );
 
@@ -52,9 +78,29 @@ export default function OrdersPage() {
           ))}
         </div>
 
+        <button style={styles.addBtn} onClick={() => setShowForm(!showForm)}>
+          <Plus size={16} style={{ marginRight: "6px" }} />
+          {showForm ? "Cancel" : "Add New Order"}
+        </button>
+
+        {showForm && (
+          <div style={styles.form}>
+            <input style={styles.input} placeholder="Customer Name" value={customer} onChange={(e) => setCustomer(e.target.value)} />
+            <input style={styles.input} placeholder="Item" value={item} onChange={(e) => setItem(e.target.value)} />
+            <input style={styles.input} placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+            <input style={styles.input} placeholder="Pickup Time (e.g. Fri, 5 PM)" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
+            <select style={styles.input} value={status} onChange={(e) => setStatus(e.target.value as Order["status"])}>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <button style={styles.saveBtn} onClick={addOrder}>Save Order</button>
+          </div>
+        )}
+
         {filteredOrders.length === 0 ? (
           <p style={{ textAlign: "center", color: "#6a4a2a", fontSize: "13px", marginTop: "20px" }}>
-            No orders in this category yet.
+            No orders yet — add your first one above!
           </p>
         ) : (
           <div style={styles.list}>
@@ -97,6 +143,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: { textAlign: "center", fontSize: "20px", fontWeight: 800, color: "#1f140c", marginBottom: "16px" },
   tabs: { display: "flex", justifyContent: "space-between", marginBottom: "16px", paddingBottom: "8px", borderBottom: "1px solid #cba374" },
   tab: { fontSize: "12px", cursor: "pointer", paddingBottom: "4px" },
+  addBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "12px", fontWeight: 700, color: "#fff", fontSize: "13px", cursor: "pointer", marginBottom: "16px" },
+  form: { border: "1.5px solid #b97a4a", borderRadius: "10px", padding: "14px", marginBottom: "16px", display: "flex", flexDirection: "column", gap: "8px" },
+  input: { border: "1px solid #b97a4a", borderRadius: "8px", padding: "10px", fontSize: "13px", color: "#2b1c12" },
+  saveBtn: { backgroundColor: "#8a5a2f", border: "none", borderRadius: "8px", padding: "10px", fontWeight: 700, color: "#fff", cursor: "pointer" },
   list: { display: "flex", flexDirection: "column", gap: "10px" },
   card: { border: "1.5px solid #b97a4a", borderRadius: "10px", padding: "12px" },
   cardTop: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" },
