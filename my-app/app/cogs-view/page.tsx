@@ -29,7 +29,9 @@ export default function CogsViewPage() {
       return;
     }
     const parsed = JSON.parse(stored);
-    setIngredients(parsed.map((i: any) => ({ name: i.name, price: i.price || 0 })));
+    // Bring in ingredient NAMES only — user types the actual cost used in this batch,
+    // since the inventory price is the full grocery price, not the per-batch portion.
+    setIngredients(parsed.map((i: any) => ({ name: i.name, price: 0 })));
     setProductName("Cupcake Batch");
   };
 
@@ -129,7 +131,7 @@ export default function CogsViewPage() {
               <input
                 style={{ ...styles.ingInput, width: "70px" }}
                 type="number"
-                placeholder="$"
+                placeholder="Cost used"
                 value={ing.price === 0 ? "" : ing.price}
                 onChange={(e) => updateIngredient(i, "price", e.target.value)}
               />
