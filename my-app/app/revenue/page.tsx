@@ -1,49 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Home, ShoppingCart, CookingPot, ClipboardList, User } from "lucide-react";
-import { getTotalRevenue, transactions } from "@/app/lib/transactions";
+
+interface Order {
+  item: string;
+  quantity: number;
+  status: string;
+}
 
 export default function RevenuePage() {
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("orders");
+    if (stored) {
+      const orders: any[] = JSON.parse(stored);
+      const completed = orders.filter((o) => o.status === "Completed");
+      setCompletedCount(completed.length);
+    }
+  }, []);
+
   return (
     <div style={styles.outerWrapper}>
       <div style={styles.container}>
         <h1 style={styles.title}>Revenue</h1>
-
         <div style={styles.card}>
-          <p style={styles.bigNumber}>
-            ${getTotalRevenue().toFixed(2)}
-          </p>
-
-          <p style={styles.label}>
-            From {transactions.filter((t: { status: string; }) => t.status === "Completed").length} completed orders
-          </p>
+          <p style={styles.bigNumber}>${totalRevenue.toFixed(2)}</p>
+          <p style={styles.label}>Total revenue from {completedCount} completed orders</p>
         </div>
-
         <div style={styles.bottomNav}>
-          <a href="/home" style={styles.navItem}>
-            <Home size={22} />
-            <span>Home</span>
-          </a>
-
-          <a href="/inventory" style={styles.navItem}>
-            <ShoppingCart size={22} />
-            <span>Inventory</span>
-          </a>
-
-          <a href="/cogs-view" style={styles.navItem}>
-            <CookingPot size={22} />
-            <span>Recipes</span>
-          </a>
-
-          <a href="/orders" style={styles.navItem}>
-            <ClipboardList size={22} />
-            <span>Orders</span>
-          </a>
-
-          <a href="/profile" style={styles.navItem}>
-            <User size={22} />
-            <span>Profile</span>
-          </a>
+          <a href="/home" style={styles.navItem}><Home size={22} /><span>Home</span></a>
+          <a href="/inventory" style={styles.navItem}><ShoppingCart size={22} /><span>Inventory</span></a>
+          <a href="/cogs-view" style={styles.navItem}><CookingPot size={22} /><span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}><ClipboardList size={22} /><span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}><User size={22} /><span>Profile</span></a>
         </div>
       </div>
     </div>
