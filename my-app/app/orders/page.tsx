@@ -7,6 +7,7 @@ interface Order {
   customer: string;
   item: string;
   quantity: number;
+  price: number;
   status: "Pending" | "Confirmed" | "Completed";
   pickupTime: string;
 }
@@ -24,6 +25,7 @@ export default function OrdersPage() {
   const [customer, setCustomer] = useState("");
   const [item, setItem] = useState("");
   const [quantity, setQuantity] = useState("1");
+  const [price, setPrice] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [status, setStatus] = useState<Order["status"]>("Pending");
 
@@ -38,6 +40,7 @@ export default function OrdersPage() {
       customer,
       item,
       quantity: parseInt(quantity) || 1,
+      price: parseFloat(price) || 0,
       status,
       pickupTime: pickupTime || "TBD",
     };
@@ -47,6 +50,7 @@ export default function OrdersPage() {
     setCustomer("");
     setItem("");
     setQuantity("1");
+    setPrice("");
     setPickupTime("");
     setStatus("Pending");
     setShowForm(false);
@@ -88,6 +92,7 @@ export default function OrdersPage() {
             <input style={styles.input} placeholder="Customer Name" value={customer} onChange={(e) => setCustomer(e.target.value)} />
             <input style={styles.input} placeholder="Item" value={item} onChange={(e) => setItem(e.target.value)} />
             <input style={styles.input} placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+            <input style={styles.input} placeholder="Price per item ($)" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} />
             <input style={styles.input} placeholder="Pickup Time (e.g. Fri, 5 PM)" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
             <select style={styles.input} value={status} onChange={(e) => setStatus(e.target.value as Order["status"])}>
               <option value="Pending">Pending</option>
@@ -119,6 +124,7 @@ export default function OrdersPage() {
                   </span>
                 </div>
                 <p style={styles.itemLine}>{order.quantity}x {order.item}</p>
+                <p style={styles.itemLine}>${(order.price * order.quantity).toFixed(2)}</p>
                 <p style={styles.pickupLine}>📅 Pickup: {order.pickupTime}</p>
               </div>
             ))}
