@@ -35,7 +35,7 @@ export default function HomePage() {
             <p style={styles.statLabel}>Orders</p>
             <span style={styles.statLink}>View all</span>
           </a>
-         <a href="/orders" style={{ ...styles.statCard, textDecoration: "none" }}>
+         <a href="/revenue" style={{ ...styles.statCard, textDecoration: "none" }}>
   <p style={styles.statLabel}>Revenue</p>
   <span style={styles.statLink}>See all</span>
 </a>
