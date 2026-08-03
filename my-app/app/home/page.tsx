@@ -1,4 +1,5 @@
 import { Home, ShoppingCart, CookingPot, ClipboardList, User, Bell } from "lucide-react";
+import { getOrderCount, getTotalRevenue, getTotalWaste } from "../lib/transactions";
 
 export default function HomePage() {
   return (
@@ -33,10 +34,12 @@ export default function HomePage() {
         <div style={styles.grid}>
           <a href="/orders" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Orders</p>
+            <p style={styles.statNumber}>{getOrderCount()}</p>
             <span style={styles.statLink}>View all</span>
           </a>
-          <a href="/orders" style={{ ...styles.statCard, textDecoration: "none" }}>
+          <a href="/revenue" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Revenue</p>
+            <p style={styles.statNumber}>${getTotalRevenue().toFixed(2)}</p>
             <span style={styles.statLink}>See all</span>
           </a>
           <a href="/inventory" style={{ ...styles.statCard, textDecoration: "none" }}>
@@ -45,6 +48,7 @@ export default function HomePage() {
           </a>
           <a href="/forecast" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Waste Risk</p>
+            <p style={styles.statNumber}>${getTotalWaste().toFixed(2)}</p>
           </a>
         </div>
 
@@ -181,8 +185,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   statLabel: {
     fontWeight: 700,
     color: "#1f140c",
-    margin: "0 0 22px 0",
+    margin: "0 0 4px 0",
     fontSize: "15px",
+  },
+  statNumber: {
+    fontSize: "20px",
+    fontWeight: 800,
+    color: "#1f140c",
+    margin: "0 0 18px 0",
   },
   statLink: { color: "#a0592f", fontSize: "13px", fontWeight: 600 },
   quickActions: {
