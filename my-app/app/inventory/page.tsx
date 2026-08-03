@@ -1,6 +1,7 @@
 "use client";
-import { Home, ShoppingCart, CookingPot, ClipboardList, User, Search } from "lucide-react";
+
 import { useState, useEffect } from "react";
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Search, Pencil, Trash2, Check } from "lucide-react";
 
 interface InventoryItem {
   name: string;
@@ -18,19 +19,46 @@ export default function InventoryPage() {
   const [filter, setFilter] = useState<"All" | "Low Stock" | "Expiring Soon">("All");
   const [search, setSearch] = useState("");
   const [items, setItems] = useState<InventoryItem[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    loadItems();
+  }, []);
+
+  const loadItems = () => {
     const stored = localStorage.getItem("inventoryItems");
     if (stored) {
       const parsed = JSON.parse(stored);
       const withStatus: InventoryItem[] = parsed.map((item: any) => ({
         name: item.name,
-        quantity: `${item.quantity ?? 1} unit(s)`,
-        status: "Good",
+        quantity: item.quantity ? `${item.quantity} unit(s)` : "1 unit(s)",
+        status: item.status || "Good",
       }));
       setItems(withStatus);
     }
-  }, []);
+  };
+
+  const saveItems = (updated: InventoryItem[]) => {
+    setItems(updated);
+    localStorage.setItem("inventoryItems", JSON.stringify(updated.map(i => ({
+      name: i.name,
+      quantity: parseInt(i.quantity) || 1,
+      status: i.status,
+    }))));
+  };
+
+  const updateField = (index: number, field: keyof InventoryItem, value: string) => {
+    const updated = [...items];
+    (updated[index] as any)[field] = value;
+    setItems(updated);
+  };
+
+  const deleteItem = (index: number) => {
+    if (confirm("Delete this item?")) {
+      const updated = items.filter((_, i) => i !== index);
+      saveItems(updated);
+    }
+  };
 
   const filteredItems = items.filter((item) => {
     const matchesFilter = filter === "All" || item.status === filter;
@@ -78,150 +106,91 @@ export default function InventoryPage() {
           <div style={styles.list}>
             {filteredItems.map((item, i) => (
               <div key={i} style={styles.row}>
-                <div style={styles.thumbnail}><ShoppingCart size={18} color="#fff" /></div>
-                <div style={styles.info}>
-                  <p style={styles.itemName}>{item.name}</p>
-                  <p style={styles.quantity}>{item.quantity}</p>
-                </div>
-                <span
-                  style={{
-                    ...styles.statusTag,
-                    backgroundColor: statusColors[item.status].bg,
-                    color: statusColors[item.status].text,
-                  }}
-                >
-                  {item.status}
-                </span>
+                {editingIndex === i ? (
+                  <>
+                    <input
+                      style={styles.editInput}
+                      value={item.name}
+                      onChange={(e) => updateField(i, "name", e.target.value)}
+                    />
+                    <input
+                      style={{ ...styles.editInput, width: "70px" }}
+                      value={item.quantity}
+                      onChange={(e) => updateField(i, "quantity", e.target.value)}
+                    />
+                    <select
+                      style={styles.editSelect}
+                      value={item.status}
+                      onChange={(e) => updateField(i, "status", e.target.value)}
+                    >
+                      <option value="Good">Good</option>
+                      <option value="Low Stock">Low Stock</option>
+                      <option value="Expiring Soon">Expiring Soon</option>
+                    </select>
+                    <button
+                      style={styles.iconBtn}
+                      onClick={() => { saveItems(items); setEditingIndex(null); }}
+                    >
+                      <Check size={16} color="#2b6b2b" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={styles.info}>
+                      <p style={styles.itemName}>{item.name}</p>
+                      <p style={styles.quantity}>{item.quantity}</p>
+                    </div>
+                    <span
+                      style={{
+                        ...styles.statusTag,
+                        backgroundColor: statusColors[item.status].bg,
+                        color: statusColors[item.status].text,
+                      }}
+                    >
+                      {item.status}
+                    </span>
+                    <button style={styles.iconBtn} onClick={() => setEditingIndex(i)}>
+                      <Pencil size={15} color="#5a3a1a" />
+                    </button>
+                    <button style={styles.iconBtn} onClick={() => deleteItem(i)}>
+                      <Trash2 size={15} color="#c0392b" />
+                    </button>
+                  </>
+                )}
               </div>
             ))}
           </div>
         )}
 
-       <div style={styles.bottomNav}>
-  <a href="/home" style={styles.navItem}><Home size={20} /><span>Home</span></a>
-  <a href="/inventory" style={{ ...styles.navItem, color: "#a0592f" }}><ShoppingCart size={20} /><span>Inventory</span></a>
-  <a href="/cogs-view" style={styles.navItem}><CookingPot size={20} /><span>Recipes</span></a>
-  <a href="/orders" style={styles.navItem}><ClipboardList size={20} /><span>Orders</span></a>
-  <a href="/profile" style={styles.navItem}><User size={20} /><span>Profile</span></a>
-</div>
+        <div style={styles.bottomNav}>
+          <a href="/home" style={styles.navItem}><Home size={22} /><span>Home</span></a>
+          <a href="/inventory" style={{ ...styles.navItem, color: "#e6bb8f" }}><ShoppingCart size={22} /><span>Inventory</span></a>
+          <a href="/cogs-view" style={styles.navItem}><CookingPot size={22} /><span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}><ClipboardList size={22} /><span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}><User size={22} /><span>Profile</span></a>
+        </div>
       </div>
     </div>
   );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-  outerWrapper: {
-    minHeight: "100vh",
-    width: "100%",
-    backgroundColor: "#1a1a1a",
-    display: "flex",
-    justifyContent: "center",
-  },
-  container: {
-    width: "100%",
-    maxWidth: "393px",
-    backgroundColor: "#f3d9bd",
-    minHeight: "100vh",
-    padding: "20px 20px 100px",
-    boxSizing: "border-box",
-    position: "relative",
-  },
-  title: {
-    textAlign: "center",
-    fontSize: "20px",
-    fontWeight: 800,
-    color: "#2b1c12",
-    marginBottom: "16px",
-  },
-  searchBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    backgroundColor: "#e6bb8f",
-    border: "1.5px solid #7a5030",
-    borderRadius: "10px",
-    padding: "10px 14px",
-    marginBottom: "20px",
-  },
-  searchInput: {
-    border: "none",
-    background: "none",
-    outline: "none",
-    fontSize: "14px",
-    color: "#5a3a1a",
-    fontWeight: 600,
-    flex: 1,
-  },
-  tabs: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "16px",
-    paddingBottom: "8px",
-    borderBottom: "1px solid #cba374",
-  },
-  tab: {
-    fontSize: "13px",
-    cursor: "pointer",
-    paddingBottom: "4px",
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    border: "1.5px solid #b97a4a",
-    borderRadius: "10px",
-    padding: "10px",
-  },
-  thumbnail: {
-    width: "36px",
-    height: "36px",
-    backgroundColor: "#d99a6c",
-    borderRadius: "6px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "16px",
-  },
+  outerWrapper: { minHeight: "100vh", width: "100%", backgroundColor: "#1a1a1a", display: "flex", justifyContent: "center" },
+  container: { width: "100%", maxWidth: "393px", backgroundColor: "#f3d9bd", minHeight: "100vh", padding: "20px 20px 100px", boxSizing: "border-box", position: "relative" },
+  title: { textAlign: "center", fontSize: "20px", fontWeight: 800, color: "#1f140c", marginBottom: "16px" },
+  searchBar: { display: "flex", alignItems: "center", gap: "8px", backgroundColor: "#e6bb8f", border: "1.5px solid #7a5030", borderRadius: "10px", padding: "10px 14px", marginBottom: "20px" },
+  searchInput: { border: "none", background: "none", outline: "none", fontSize: "14px", color: "#5a3a1a", fontWeight: 600, flex: 1 },
+  tabs: { display: "flex", justifyContent: "space-between", marginBottom: "16px", paddingBottom: "8px", borderBottom: "1px solid #cba374" },
+  tab: { fontSize: "13px", cursor: "pointer", paddingBottom: "4px" },
+  list: { display: "flex", flexDirection: "column", gap: "10px" },
+  row: { display: "flex", alignItems: "center", gap: "8px", border: "1.5px solid #b97a4a", borderRadius: "10px", padding: "10px" },
   info: { flex: 1 },
-  itemName: {
-    fontWeight: 700,
-    fontSize: "13px",
-    color: "#2b1c12",
-    margin: 0,
-  },
-  quantity: {
-    fontSize: "11px",
-    color: "#6a4a2a",
-    margin: 0,
-  },
-  statusTag: {
-    fontSize: "11px",
-    fontWeight: 700,
-    padding: "6px 10px",
-    borderRadius: "8px",
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#2b1c12",
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "12px 0",
-  },
-  navItem: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "4px",
-    color: "#e6bb8f",
-    fontSize: "10px",
-    textDecoration: "none",
-  },
+  itemName: { fontWeight: 700, fontSize: "13px", color: "#1f140c", margin: 0 },
+  quantity: { fontSize: "11px", color: "#6a4a2a", margin: 0 },
+  statusTag: { fontSize: "10px", fontWeight: 700, padding: "5px 8px", borderRadius: "8px" },
+  iconBtn: { background: "none", border: "none", cursor: "pointer", padding: "4px" },
+  editInput: { flex: 1, border: "1px solid #a0592f", borderRadius: "4px", padding: "6px", fontSize: "12px", color: "#2b1c12" },
+  editSelect: { border: "1px solid #a0592f", borderRadius: "4px", padding: "6px", fontSize: "11px", color: "#2b1c12" },
+  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "14px 0" },
+  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#a88a68", fontSize: "10px", textDecoration: "none", fontWeight: 600 },
 };

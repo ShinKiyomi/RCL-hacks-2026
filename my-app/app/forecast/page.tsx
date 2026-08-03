@@ -1,24 +1,41 @@
 "use client";
-import { Home, ShoppingCart, CookingPot, ClipboardList, User, Lightbulb } from "lucide-react";
+
+import {
+  Home,
+  ShoppingCart,
+  CookingPot,
+  ClipboardList,
+  User,
+  Lightbulb,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const forecastData = [
-  { day: "Day 1", value: 8 },
-  { day: "Day 2", value: 18 },
-  { day: "Day 3", value: 24 },
-  { day: "Day 4", value: 20 },
-  { day: "Day 5", value: 28 },
-  { day: "Day 6", value: 22 },
-  { day: "Day 7", value: 33 },
+// Running in a client component — avoid importing server-only modules.
+// Provide a small local fallback dataset for the forecast chart.
+const monthlyData = [
+  { month: "2026-07-01", revenue: 8 },
+  { month: "2026-07-02", revenue: 12 },
+  { month: "2026-07-03", revenue: 20 },
+  { month: "2026-07-04", revenue: 16 },
+  { month: "2026-07-05", revenue: 24 },
+  { month: "2026-07-06", revenue: 28 },
+  { month: "2026-07-07", revenue: 22 },
 ];
+
+const forecastData = monthlyData.map((m) => ({
+  day: m.month.slice(5),
+  value: m.revenue,
+}));
 
 export default function ForecastPage() {
   const router = useRouter();
-  const maxVal = 40;
+
+  const maxVal =
+    Math.max(...forecastData.map((d) => d.value), 1) * 1.2;
+
   const chartWidth = 320;
   const chartHeight = 160;
   const stepX = chartWidth / (forecastData.length - 1);
-
   const points = forecastData.map((d, i) => {
     const x = i * stepX;
     const y = chartHeight - (d.value / maxVal) * chartHeight;

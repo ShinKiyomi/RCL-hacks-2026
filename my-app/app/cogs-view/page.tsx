@@ -1,7 +1,8 @@
 "use client";
-import { Home, ShoppingCart, CookingPot, ClipboardList, User, Image as ImageIcon } from "lucide-react";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, Home, ShoppingCart, CookingPot, ClipboardList, User, X } from "lucide-react";
 
 interface Ingredient {
   name: string;
@@ -15,26 +16,66 @@ export default function CogsViewPage() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: "", price: 0 }]);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const useCupcakeTemplate = () => {
     const stored = localStorage.getItem("inventoryItems");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setIngredients(parsed.map((i: any) => ({ name: i.name, price: i.price })));
-      setProductName("Cupcake Batch");
-    } else {
+    if (!stored) {
       alert("No inventory items found yet — scan a receipt first!");
+      return;
+    }
+    const hasTyped = ingredients.some((i) => i.name.trim() !== "");
+    if (hasTyped && !confirm("This will replace what you've typed with your inventory items. Continue?")) {
+      return;
+    }
+    const parsed = JSON.parse(stored);
+    setIngredients(parsed.map((i: any) => ({ name: i.name, price: i.price || 0 })));
+    setProductName("Cupcake Batch");
+  };
+
+  const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
+    const updated = [...ingredients];
+    if (field === "name") {
+      updated[index].name = value;
+    } else {
+      updated[index].price = value === "" ? 0 : parseFloat(value);
+    }
+    setIngredients(updated);
+  };
+
+  const removeIngredient = (index: number) => {
+    setIngredients(ingredients.filter((_, i) => i !== index));
+  };
+
+  const clearAll = () => {
+    if (confirm("Clear all ingredients?")) {
+      setIngredients([{ name: "", price: 0 }]);
+      setProductName("");
+      setBatchSize("");
+      setResult(null);
     }
   };
 
   const calculate = async () => {
+    setError("");
+    const validIngredients = ingredients.filter((i) => i.name.trim() !== "");
+    if (validIngredients.length === 0) {
+      setError("Add at least one ingredient with a name.");
+      return;
+    }
+    const yieldNum = parseFloat(batchSize);
+    if (!yieldNum || yieldNum <= 0) {
+      setError("Enter a valid batch size (number of units).");
+      return;
+    }
+
     setLoading(true);
     const res = await fetch("/api/cogs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ingredients: ingredients.filter((i) => i.name),
-        batchYield: parseFloat(batchSize) || 1,
+        ingredients: validIngredients,
+        batchYield: yieldNum,
       }),
     });
     const data = await res.json();
@@ -46,31 +87,34 @@ export default function CogsViewPage() {
     <div style={styles.outerWrapper}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <button onClick={() => router.push("/home")} style={styles.backBtn}>←</button>
+          <button onClick={() => router.push("/home")} style={styles.backBtn}>
+            <ArrowLeft size={22} color="#1f140c" />
+          </button>
           <h1 style={styles.title}>Automated Batch Cost And Price Calculation</h1>
         </div>
 
         <div style={styles.card}>
-          <div style={styles.topRow}>
-           <div style={styles.thumbnail}><ImageIcon size={22} color="#5a3a1a" /></div>
-            <div style={{ flex: 1 }}>
-              <input
-                style={styles.nameInput}
-                placeholder="Product Name"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-              />
-              <input
-                style={styles.batchInput}
-                placeholder="e.g. Number of units"
-                value={batchSize}
-                onChange={(e) => setBatchSize(e.target.value)}
-              />
-            </div>
-          </div>
+          <input
+            style={styles.nameInput}
+            placeholder="Product Name"
+            value={productName}
+            onChange={(e) => setProductName(e.target.value)}
+          />
+          <input
+            style={styles.batchInput}
+            placeholder="Batch Size (e.g. 12 units)"
+            type="number"
+            value={batchSize}
+            onChange={(e) => setBatchSize(e.target.value)}
+          />
 
-          <div style={styles.templateBtn} onClick={useCupcakeTemplate}>
-            🧁 Use Cupcake Template (from Inventory)
+          <div style={styles.templateRow}>
+            <div style={styles.templateBtn} onClick={useCupcakeTemplate}>
+              🧁 Use Cupcake Template
+            </div>
+            <div style={styles.clearBtn} onClick={clearAll}>
+              Clear All
+            </div>
           </div>
 
           <h3 style={styles.sectionLabel}>Ingredient Cost Breakdown</h3>
@@ -80,23 +124,18 @@ export default function CogsViewPage() {
                 style={styles.ingInput}
                 placeholder="Ingredient"
                 value={ing.name}
-                onChange={(e) => {
-                  const updated = [...ingredients];
-                  updated[i].name = e.target.value;
-                  setIngredients(updated);
-                }}
+                onChange={(e) => updateIngredient(i, "name", e.target.value)}
               />
               <input
                 style={{ ...styles.ingInput, width: "70px" }}
                 type="number"
                 placeholder="$"
-                value={ing.price || ""}
-                onChange={(e) => {
-                  const updated = [...ingredients];
-                  updated[i].price = parseFloat(e.target.value) || 0;
-                  setIngredients(updated);
-                }}
+                value={ing.price === 0 ? "" : ing.price}
+                onChange={(e) => updateIngredient(i, "price", e.target.value)}
               />
+              <button style={styles.removeBtn} onClick={() => removeIngredient(i)}>
+                <X size={16} color="#c0392b" />
+              </button>
             </div>
           ))}
           <span
@@ -105,6 +144,8 @@ export default function CogsViewPage() {
           >
             + Add ingredient
           </span>
+
+          {error && <p style={styles.errorText}>{error}</p>}
 
           <div style={styles.totalsRow}>
             <span>Total Batch Cost</span>
@@ -138,16 +179,16 @@ export default function CogsViewPage() {
         </div>
 
         <button style={styles.saveBtn} onClick={calculate}>
-          {loading ? "Calculating..." : "Save Batch"}
+          {loading ? "Calculating..." : "Calculate Batch Cost"}
         </button>
 
         <div style={styles.bottomNav}>
-  <a href="/home" style={styles.navItem}><Home size={20} /><span>Home</span></a>
-  <a href="/inventory" style={styles.navItem}><ShoppingCart size={20} /><span>Inventory</span></a>
-  <a href="/cogs-view" style={{ ...styles.navItem, color: "#a0592f" }}><CookingPot size={20} /><span>Recipes</span></a>
-  <a href="/orders" style={styles.navItem}><ClipboardList size={20} /><span>Orders</span></a>
-  <a href="/profile" style={styles.navItem}><User size={20} /><span>Profile</span></a>
-</div>
+          <a href="/home" style={styles.navItem}><Home size={22} /><span>Home</span></a>
+          <a href="/inventory" style={styles.navItem}><ShoppingCart size={22} /><span>Inventory</span></a>
+          <a href="/cogs-view" style={{ ...styles.navItem, color: "#e6bb8f" }}><CookingPot size={22} /><span>Recipes</span></a>
+          <a href="/orders" style={styles.navItem}><ClipboardList size={22} /><span>Orders</span></a>
+          <a href="/profile" style={styles.navItem}><User size={22} /><span>Profile</span></a>
+        </div>
       </div>
     </div>
   );
@@ -157,36 +198,28 @@ const styles: { [key: string]: React.CSSProperties } = {
   outerWrapper: { minHeight: "100vh", width: "100%", backgroundColor: "#1a1a1a", display: "flex", justifyContent: "center" },
   container: { width: "100%", maxWidth: "393px", backgroundColor: "#f3d9bd", minHeight: "100vh", padding: "20px 20px 100px", boxSizing: "border-box", position: "relative" },
   header: { display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "16px" },
-  backBtn: { background: "none", border: "none", fontSize: "20px", cursor: "pointer", marginTop: "4px" },
-  title: { fontSize: "18px", fontWeight: 800, color: "#2b1c12", margin: 0, lineHeight: 1.3 },
+  backBtn: { background: "none", border: "none", cursor: "pointer", marginTop: "4px" },
+  title: { fontSize: "18px", fontWeight: 800, color: "#1f140c", margin: 0, lineHeight: 1.3 },
   card: { border: "1.5px solid #7a5030", borderRadius: "10px", padding: "14px", marginBottom: "20px" },
-  topRow: { display: "flex", gap: "10px", marginBottom: "16px" },
-  thumbnail: { width: "60px", height: "60px", backgroundColor: "#e6bb8f", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px" },
-  nameInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", marginBottom: "6px", fontSize: "13px", boxSizing: "border-box", color: "#2b1c12" },
-  batchInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "6px 8px", fontSize: "12px", boxSizing: "border-box", color: "#2b1c12" },
-  templateBtn: {
-    backgroundColor: "#d99a6c",
-    borderRadius: "8px",
-    padding: "10px",
-    marginBottom: "12px",
-    cursor: "pointer",
-    fontWeight: 700,
-    fontSize: "13px",
-    color: "#2b1c12",
-    textAlign: "center",
-  },
+  nameInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "8px", marginBottom: "8px", fontSize: "13px", boxSizing: "border-box", color: "#2b1c12" },
+  batchInput: { width: "100%", border: "1px solid #b97a4a", borderRadius: "6px", padding: "8px", marginBottom: "10px", fontSize: "13px", boxSizing: "border-box", color: "#2b1c12" },
+  templateRow: { display: "flex", gap: "8px", marginBottom: "14px" },
+  templateBtn: { flex: 1, backgroundColor: "#d99a6c", borderRadius: "8px", padding: "10px", cursor: "pointer", fontWeight: 700, fontSize: "12px", color: "#2b1c12", textAlign: "center" },
+  clearBtn: { backgroundColor: "transparent", border: "1.5px solid #c0392b", borderRadius: "8px", padding: "10px 14px", cursor: "pointer", fontWeight: 700, fontSize: "12px", color: "#c0392b", textAlign: "center" },
   sectionLabel: { fontSize: "13px", fontWeight: 800, color: "#2b1c12", margin: "0 0 8px 0" },
-  ingredientRow: { display: "flex", gap: "6px", marginBottom: "6px" },
+  ingredientRow: { display: "flex", gap: "6px", marginBottom: "6px", alignItems: "center" },
   ingInput: { flex: 1, border: "1px solid #cba374", borderRadius: "6px", padding: "6px 8px", fontSize: "12px", color: "#2b1c12" },
-  addIngredient: { fontSize: "12px", color: "#a0592f", fontWeight: 700, cursor: "pointer", display: "inline-block", marginBottom: "16px" },
+  removeBtn: { background: "none", border: "none", cursor: "pointer", padding: "4px" },
+  addIngredient: { fontSize: "12px", color: "#a0592f", fontWeight: 700, cursor: "pointer", display: "inline-block", marginBottom: "12px" },
+  errorText: { color: "#c0392b", fontSize: "12px", fontWeight: 700, marginBottom: "10px" },
   totalsRow: { display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: 700, color: "#2b1c12", padding: "6px 0", borderTop: "1px solid #cba374" },
-  suggestedTitle: { fontSize: "16px", fontWeight: 800, color: "#2b1c12", margin: "0 0 12px 0" },
+  suggestedTitle: { fontSize: "16px", fontWeight: 800, color: "#1f140c", margin: "0 0 12px 0" },
   priceRow: { display: "flex", gap: "8px", marginBottom: "20px" },
   priceCard: { flex: 1, backgroundColor: "#d99a6c", borderRadius: "8px", padding: "10px", textAlign: "center" },
   priceLabel: { fontSize: "11px", fontWeight: 700, color: "#2b1c12", margin: "0 0 8px 0" },
   priceValue: { fontSize: "14px", fontWeight: 800, color: "#2b1c12", margin: "0 0 4px 0" },
   priceNote: { fontSize: "10px", color: "#3d2a1a", margin: 0 },
   saveBtn: { width: "100%", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "16px", fontWeight: 700, color: "#fff", fontSize: "15px", cursor: "pointer" },
-  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "12px 0" },
-  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#e6bb8f", fontSize: "10px", textDecoration: "none" },
+  bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "14px 0" },
+  navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#a88a68", fontSize: "10px", textDecoration: "none", fontWeight: 600 },
 };
