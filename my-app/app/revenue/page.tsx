@@ -1,27 +1,28 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Home, ShoppingCart, CookingPot, ClipboardList, User } from "lucide-react";
-
 interface Order {
   item: string;
   quantity: number;
+  price: number;
   status: string;
 }
-
 export default function RevenuePage() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
-
   useEffect(() => {
     const stored = localStorage.getItem("orders");
     if (stored) {
-      const orders: any[] = JSON.parse(stored);
+      const orders: Order[] = JSON.parse(stored);
       const completed = orders.filter((o) => o.status === "Completed");
+      const revenue = completed.reduce(
+        (sum, o) => sum + (o.price || 0) * (o.quantity || 0),
+        0
+      );
       setCompletedCount(completed.length);
+      setTotalRevenue(revenue);
     }
   }, []);
-
   return (
     <div style={styles.outerWrapper}>
       <div style={styles.container}>
@@ -41,7 +42,6 @@ export default function RevenuePage() {
     </div>
   );
 }
-
 const styles: { [key: string]: React.CSSProperties } = {
   outerWrapper: { minHeight: "100vh", width: "100%", backgroundColor: "#1a1a1a", display: "flex", justifyContent: "center" },
   container: { width: "100%", maxWidth: "393px", backgroundColor: "#f3d9bd", minHeight: "100vh", padding: "20px 20px 100px", boxSizing: "border-box", position: "relative" },
