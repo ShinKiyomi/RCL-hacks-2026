@@ -31,21 +31,21 @@ export default function HomePage() {
         </div>
 
         <div style={styles.grid}>
-          <div style={styles.statCard}>
+          <a href="/orders" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Orders</p>
             <span style={styles.statLink}>View all</span>
-          </div>
-          <div style={styles.statCard}>
+          </a>
+          <a href="/orders" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Revenue</p>
             <span style={styles.statLink}>See all</span>
-          </div>
-          <div style={styles.statCard}>
+          </a>
+          <a href="/inventory" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Low stock</p>
             <span style={styles.statLink}>Check now</span>
-          </div>
-          <div style={styles.statCard}>
+          </a>
+          <a href="/forecast" style={{ ...styles.statCard, textDecoration: "none" }}>
             <p style={styles.statLabel}>Waste Risk</p>
-          </div>
+          </a>
         </div>
 
         {/* Quick Actions */}
@@ -176,6 +176,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "16px",
     backgroundColor: "transparent",
     minHeight: "78px",
+    display: "block",
   },
   statLabel: {
     fontWeight: 700,
