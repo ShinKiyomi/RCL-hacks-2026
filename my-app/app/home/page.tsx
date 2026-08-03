@@ -1,5 +1,5 @@
 import { Home, ShoppingCart, CookingPot, ClipboardList, User, Bell } from "lucide-react";
-import { getOrderCount, getTotalRevenue, getTotalWaste } from "../lib/transactions";
+import { getOrderCount, getTotalRevenue, getTotalWaste } from "../../lib/transactions";
 
 export default function HomePage() {
   return (
