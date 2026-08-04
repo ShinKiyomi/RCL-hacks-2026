@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Home, ShoppingCart, CookingPot, ClipboardList, User, Plus } from "lucide-react";
+import { Home, ShoppingCart, CookingPot, ClipboardList, User, Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Order {
   customer: string;
@@ -22,6 +22,7 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState<"All" | "Pending" | "Confirmed" | "Completed">("All");
   const [orders, setOrders] = useState<Order[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [customer, setCustomer] = useState("");
   const [item, setItem] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -34,9 +35,43 @@ export default function OrdersPage() {
     if (stored) setOrders(JSON.parse(stored));
   }, []);
 
-  const addOrder = () => {
+  const resetForm = () => {
+    setCustomer("");
+    setItem("");
+    setQuantity("1");
+    setPrice("");
+    setPickupTime("");
+    setStatus("Pending");
+    setEditingIndex(null);
+    setShowForm(false);
+  };
+
+  const startAddOrder = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  const startEditOrder = (index: number) => {
+    const order = orders[index];
+    setCustomer(order.customer);
+    setItem(order.item);
+    setQuantity(String(order.quantity));
+    setPrice(String(order.price ?? ""));
+    setPickupTime(order.pickupTime === "TBD" ? "" : order.pickupTime);
+    setStatus(order.status);
+    setEditingIndex(index);
+    setShowForm(true);
+  };
+
+  const deleteOrder = (index: number) => {
+    const updated = orders.filter((_, i) => i !== index);
+    setOrders(updated);
+    localStorage.setItem("orders", JSON.stringify(updated));
+  };
+
+  const saveOrder = () => {
     if (!customer || !item) return;
-    const newOrder: Order = {
+    const orderData: Order = {
       customer,
       item,
       quantity: parseInt(quantity) || 1,
@@ -44,21 +79,24 @@ export default function OrdersPage() {
       status,
       pickupTime: pickupTime || "TBD",
     };
-    const updated = [...orders, newOrder];
+
+    let updated: Order[];
+    if (editingIndex !== null) {
+      // Editing an existing order — replace it in place
+      updated = orders.map((o, i) => (i === editingIndex ? orderData : o));
+    } else {
+      // Adding a brand new order
+      updated = [...orders, orderData];
+    }
+
     setOrders(updated);
     localStorage.setItem("orders", JSON.stringify(updated));
-    setCustomer("");
-    setItem("");
-    setQuantity("1");
-    setPrice("");
-    setPickupTime("");
-    setStatus("Pending");
-    setShowForm(false);
+    resetForm();
   };
 
-  const filteredOrders = orders.filter(
-    (o) => filter === "All" || o.status === filter
-  );
+  const filteredOrders = orders
+    .map((order, originalIndex) => ({ order, originalIndex }))
+    .filter(({ order }) => filter === "All" || order.status === filter);
 
   return (
     <div style={styles.outerWrapper}>
@@ -82,13 +120,19 @@ export default function OrdersPage() {
           ))}
         </div>
 
-        <button style={styles.addBtn} onClick={() => setShowForm(!showForm)}>
+        <button
+          style={styles.addBtn}
+          onClick={() => (showForm ? resetForm() : startAddOrder())}
+        >
           <Plus size={16} style={{ marginRight: "6px" }} />
           {showForm ? "Cancel" : "Add New Order"}
         </button>
 
         {showForm && (
           <div style={styles.form}>
+            <p style={styles.formHeading}>
+              {editingIndex !== null ? "Edit Order" : "New Order"}
+            </p>
             <input style={styles.input} placeholder="Customer Name" value={customer} onChange={(e) => setCustomer(e.target.value)} />
             <input style={styles.input} placeholder="Item" value={item} onChange={(e) => setItem(e.target.value)} />
             <input style={styles.input} placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
@@ -99,7 +143,9 @@ export default function OrdersPage() {
               <option value="Confirmed">Confirmed</option>
               <option value="Completed">Completed</option>
             </select>
-            <button style={styles.saveBtn} onClick={addOrder}>Save Order</button>
+            <button style={styles.saveBtn} onClick={saveOrder}>
+              {editingIndex !== null ? "Update Order" : "Save Order"}
+            </button>
           </div>
         )}
 
@@ -109,8 +155,8 @@ export default function OrdersPage() {
           </p>
         ) : (
           <div style={styles.list}>
-            {filteredOrders.map((order, i) => (
-              <div key={i} style={styles.card}>
+            {filteredOrders.map(({ order, originalIndex }) => (
+              <div key={originalIndex} style={styles.card}>
                 <div style={styles.cardTop}>
                   <span style={styles.customerName}>{order.customer}</span>
                   <span
@@ -126,6 +172,14 @@ export default function OrdersPage() {
                 <p style={styles.itemLine}>{order.quantity}x {order.item}</p>
                 <p style={styles.itemLine}>${(order.price * order.quantity).toFixed(2)}</p>
                 <p style={styles.pickupLine}>📅 Pickup: {order.pickupTime}</p>
+                <div style={styles.cardActions}>
+                  <button style={styles.editBtn} onClick={() => startEditOrder(originalIndex)}>
+                    <Pencil size={13} style={{ marginRight: "4px" }} /> Edit
+                  </button>
+                  <button style={styles.deleteBtn} onClick={() => deleteOrder(originalIndex)}>
+                    <Trash2 size={13} style={{ marginRight: "4px" }} /> Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -151,6 +205,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   tab: { fontSize: "12px", cursor: "pointer", paddingBottom: "4px" },
   addBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#5a3a1a", border: "none", borderRadius: "10px", padding: "12px", fontWeight: 700, color: "#fff", fontSize: "13px", cursor: "pointer", marginBottom: "16px" },
   form: { border: "1.5px solid #b97a4a", borderRadius: "10px", padding: "14px", marginBottom: "16px", display: "flex", flexDirection: "column", gap: "8px" },
+  formHeading: { fontWeight: 800, fontSize: "13px", color: "#5a3a1a", margin: "0 0 4px 0" },
   input: { border: "1px solid #b97a4a", borderRadius: "8px", padding: "10px", fontSize: "13px", color: "#2b1c12" },
   saveBtn: { backgroundColor: "#8a5a2f", border: "none", borderRadius: "8px", padding: "10px", fontWeight: 700, color: "#fff", cursor: "pointer" },
   list: { display: "flex", flexDirection: "column", gap: "10px" },
@@ -159,7 +214,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   customerName: { fontWeight: 800, fontSize: "14px", color: "#1f140c" },
   statusTag: { fontSize: "10px", fontWeight: 700, padding: "5px 10px", borderRadius: "8px" },
   itemLine: { fontSize: "12px", color: "#3d2a1a", margin: "0 0 4px 0", fontWeight: 600 },
-  pickupLine: { fontSize: "11px", color: "#6a4a2a", margin: 0 },
+  pickupLine: { fontSize: "11px", color: "#6a4a2a", margin: "0 0 8px 0" },
+  cardActions: { display: "flex", gap: "8px", marginTop: "4px" },
+  editBtn: { display: "flex", alignItems: "center", backgroundColor: "#e6bb8f", border: "none", borderRadius: "8px", padding: "6px 12px", fontSize: "11px", fontWeight: 700, color: "#2b1c12", cursor: "pointer" },
+  deleteBtn: { display: "flex", alignItems: "center", backgroundColor: "transparent", border: "1px solid #c0392b", borderRadius: "8px", padding: "6px 12px", fontSize: "11px", fontWeight: 700, color: "#c0392b", cursor: "pointer" },
   bottomNav: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#2b1c12", display: "flex", justifyContent: "space-around", padding: "14px 0" },
   navItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", color: "#a88a68", fontSize: "10px", textDecoration: "none", fontWeight: 600 },
 };
